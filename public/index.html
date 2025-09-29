@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P多媒体共享平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .upload-section h2 {
+            margin-bottom: 20px;
+            color: #444;
+        }
+        
+        #file-input {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .upload-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .file-list-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            color: #444;
+        }
+
+        .section-header h2 {
+            margin: 0;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: #f1f1f1;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        ul {
+            list-style: none;
+        }
+        
+        li {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        li:last-child {
+            border-bottom: none;
+        }
+        
+        .file-info {
+            flex: 1;
+        }
+        
+        .file-name {
+            font-weight: bold;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .file-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+
+        .file-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .file-tag-audio {
+            background: rgba(102, 126, 234, 0.15);
+            color: #4c51bf;
+        }
+
+        .file-tag-video {
+            background: rgba(237, 137, 54, 0.15);
+            color: #dd6b20;
+        }
+
+        .file-tag-image {
+            background: rgba(72, 187, 120, 0.15);
+            color: #2f855a;
+        }
+
+        .file-tag-unknown {
+            background: rgba(113, 128, 150, 0.15);
+            color: #4a5568;
+        }
+
+        .file-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-btn {
+            background: #48bb78;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .download-btn:hover {
+            background: #38a169;
+        }
+        
+        .download-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .remove-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .remove-btn:hover {
+            background: #e53e3e;
+        }
+
+        .secondary-btn {
+            background: #edf2f7;
+            color: #2d3748;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: 600;
+        }
+
+        .secondary-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .status-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        #status-log {
+            height: 200px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .peer-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .peer-section h2 {
+            margin-bottom: 20px;
+            color: #444;
+        }
+        
+        #peer-status {
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        #peer-status.connected {
+            background: #48bb78;
+            color: white;
+        }
+        
+        #peer-status.disconnected {
+            background: #f56565;
+            color: white;
+        }
+
+        .ai-floating-button {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #6979f8, #9b51e0);
+            color: #fff;
+            border: none;
+            border-radius: 999px;
+            padding: 16px 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            box-shadow: 0 12px 24px rgba(105, 121, 248, 0.35);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .ai-floating-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 32px rgba(105, 121, 248, 0.45);
+        }
+
+        .ai-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .ai-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .ai-panel {
+            position: fixed;
+            bottom: 0;
+            right: 24px;
+            width: min(520px, 95vw);
+            max-height: 90vh;
+            background: #ffffff;
+            border-radius: 24px 24px 16px 16px;
+            box-shadow: 0 30px 60px rgba(15, 23, 42, 0.35);
+            transform: translateY(120%) scale(0.95);
+            transform-origin: bottom right;
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .ai-panel.active {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        .ai-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.12));
+            border-bottom: 1px solid rgba(226, 232, 240, 0.7);
+        }
+
+        .ai-panel-header h2 {
+            margin: 0;
+            font-size: 1.35rem;
+            color: #2d3748;
+        }
+
+        .ai-panel-close {
+            border: none;
+            background: rgba(45, 55, 72, 0.08);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .ai-panel-close:hover {
+            background: rgba(45, 55, 72, 0.15);
+        }
+
+        .ai-panel-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .ai-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .ai-header h3 {
+            margin: 0;
+            color: #1a202c;
+        }
+
+        .ai-form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .ai-checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ai-checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: #2d3748;
+        }
+
+        .ai-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ai-select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: #f7fafc;
+            color: #2d3748;
+        }
+
+        .ai-result-card {
+            margin-top: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 16px;
+            background: #f8fafc;
+        }
+
+        .ai-result-card h3 {
+            margin-bottom: 12px;
+            font-size: 1.05rem;
+            color: #2d3748;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #edf2f7;
+            color: #2d3748;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .ai-jobs {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .ai-job-item {
+            padding: 12px;
+            border-radius: 8px;
+            background: #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .ai-realtime {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .ai-realtime-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .realtime-transcript {
+            padding: 12px;
+            background: #1a202c;
+            color: #f7fafc;
+            border-radius: 8px;
+            min-height: 80px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 640px) {
+            .ai-panel {
+                right: 12px;
+                left: 12px;
+                width: auto;
+                border-radius: 20px;
+            }
+
+            .ai-panel-body {
+                padding: 16px;
+            }
+
+            .ai-floating-button {
+                bottom: 20px;
+                right: 16px;
+                padding: 14px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>P2P多媒体共享平台</h1>
+            <p>直接在节点间共享和传输音频、视频与图片文件</p>
+        </header>
+        
+        <div class="peer-section">
+            <h2>连接状态</h2>
+            <div id="peer-status" class="disconnected">未连接</div>
+        </div>
+        
+        <div class="upload-section">
+            <h2>上传多媒体文件</h2>
+            <button class="upload-btn" onclick="document.getElementById('file-input').click()">选择音频 / 视频 / 图片</button>
+            <input type="file" id="file-input" accept="audio/*,video/*,image/*" multiple>
+        </div>
+
+        
+        <div class="file-list-section">
+            <div class="section-header">
+                <h2>文件列表</h2>
+                <button class="secondary-btn" onclick="manualRefreshNetworkFiles()">刷新网络文件</button>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('my-files')">我的文件</button>
+                <button class="tab-btn" onclick="switchTab('network-files')">网络文件</button>
+            </div>
+            <div id="my-files" class="tab-content active">
+                <ul id="my-files-list">
+                    <!-- 我的文件列表将在这里显示 -->
+                </ul>
+            </div>
+            <div id="network-files" class="tab-content">
+                <ul id="network-files-list">
+                    <!-- 网络文件列表将在这里显示 -->
+                </ul>
+            </div>
+        </div>
+        
+        <div class="status-section">
+            <div class="section-header">
+                <h2>操作日志</h2>
+                <button class="secondary-btn" onclick="clearStatusLog()">清空日志</button>
+            </div>
+            <div id="status-log"></div>
+        </div>
+    </div>
+    <button id="ai-floating-toggle" class="ai-floating-button" aria-haspopup="dialog" aria-expanded="false">
+        <span>✨ DeepSeek AI 助手</span>
+    </button>
+
+    <div id="ai-overlay" class="ai-overlay"></div>
+
+    <div id="ai-panel" class="ai-panel" role="dialog" aria-modal="true" aria-labelledby="ai-panel-title" aria-hidden="true">
+        <div class="ai-panel-header">
+            <div>
+                <h2 id="ai-panel-title">DeepSeek AI 多媒体助手</h2>
+                <span class="badge">智能理解 · 分类 · 审核 · 增强</span>
+            </div>
+            <button id="ai-panel-close" class="ai-panel-close" aria-label="关闭 AI 助手">×</button>
+        </div>
+        <div class="ai-panel-body">
+            <form id="ai-analyze-form">
+                <div class="ai-form-grid">
+                    <div>
+                        <p>选择需要分析或增强的文件</p>
+                        <button type="button" class="upload-btn" onclick="document.getElementById('ai-file-input').click()">选择媒体文件</button>
+                        <input type="file" id="ai-file-input" name="file" accept="audio/*,video/*,image/*">
+                        <div id="ai-selected-file" class="file-meta" style="margin-top:10px;color:#4a5568;">未选择文件</div>
+                    </div>
+                    <div class="ai-checkbox-group">
+                        <label><input type="checkbox" name="tasks" value="auto_tag" checked> 自动标签与场景识别</label>
+                        <label><input type="checkbox" name="tasks" value="moderation" checked> AI 内容安全审核</label>
+                        <label><input type="checkbox" name="tasks" value="subtitles"> 多语言字幕生成</label>
+                        <label><input type="checkbox" name="tasks" value="enhancement"> 智能增强 / 修复</label>
+                    </div>
+                    <div class="ai-actions">
+                        <label for="ai-languages">字幕 / 摘要语言 (按 Ctrl/⌘ 多选)</label>
+                        <select id="ai-languages" class="ai-select" multiple>
+                            <option value="zh" selected>中文</option>
+                            <option value="en" selected>English</option>
+                            <option value="ja">日本語</option>
+                            <option value="es">Español</option>
+                        </select>
+                        <button type="submit" class="upload-btn">提交 AI 分析</button>
+                    </div>
+                </div>
+            </form>
+            <div id="ai-analysis-results" class="ai-result-card" style="display:none;"></div>
+            <div id="ai-job-list" class="ai-jobs"></div>
+            <div id="ai-job-results"></div>
+            <div class="ai-realtime">
+                <h3>实时字幕 (可选)</h3>
+                <p style="color:#4a5568;">启动后系统将捕获麦克风音频，调用 DeepSeek 生成实时字幕。</p>
+                <div class="ai-realtime-actions">
+                    <button id="start-realtime-btn" type="button" class="upload-btn">开始实时字幕</button>
+                    <button id="stop-realtime-btn" type="button" class="secondary-btn" disabled>停止</button>
+                    <select id="realtime-language-select" class="ai-select" style="max-width:180px;">
+                        <option value="zh">中文</option>
+                        <option value="en">English</option>
+                    </select>
+                </div>
+                <div id="realtime-transcript" class="realtime-transcript">实时字幕未启动</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.1/socket.io.min.js"></script>
+    <script src="client.js"></script>
+</body>
+</html>
